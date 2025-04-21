@@ -1,0 +1,98 @@
+syntax = "proto3";
+
+package protocols;
+option java_multiple_files = true;
+
+// User Messaging Structs
+//
+/* 
+    Represents a message sent from the client to be
+    inserted into the database and sent to another user
+*/
+message UserMessage {
+    int32 version = 1;
+    string title = 2;
+    string recipient = 3;
+    string sender = 4;
+    string content = 5;
+}
+/* 
+    Represents a list of messages
+    sent to the user that they've requested
+*/
+message UserMessageList {
+    repeated UserMessage list = 1;
+}
+/* 
+    Represents a request for messages
+    sent to the User
+*/
+message UserMessageRequest {
+    string username = 1;
+    bool sender = 2;  // 0: Recieved messages, 1: Sent Messages
+}
+/* 
+    Represents response status types from the server
+    about the status of a sent UserMessage
+*/
+enum UserMessageResponseStatus {
+    MsgSuccess = 0;
+    MsgFailure = 1;
+    MsgRecipientUnknown = 2;
+}
+/* 
+    Represents a response from the server
+    about the status of a sent UserMessage
+*/
+message UserMessageResponse {
+    UserMessageResponseStatus status = 1;
+}
+
+
+// Auth Message Structs
+/* 
+    Represents a request to login or sign up
+*/
+message AuthMessage {
+    string username = 1;
+    string password = 2;
+    ClientState state = 3;
+}
+/* 
+    Represents a response to login or sign up
+*/
+message AuthResponse {
+    AuthReturn response = 1;  
+    string token = 2; // Placeholder
+}
+/* 
+    Represents reponse status' to the client
+    regarding Auth requests
+*/
+enum AuthReturn {
+    AuthSuccess = 0;
+    AuthFailure = 1;
+    AuthFailureRetry = 2;
+}
+
+/* 
+    Represents a bi-directional message
+    for client state changes
+*/
+message StateChange {
+    ClientState state = 1;
+}
+
+/* 
+    Represents the current state the 
+    client is in
+*/
+enum ClientState {
+    Setup = 0;      // setup loop
+    Signup = 1;     // creating new user
+    Login = 2;      // loging into existing user
+    Messaging = 3;  // preparing to send UserMessage
+    Reading = 4;    // requesting sent UserMessages
+    UserLoop = 5;   // awaiting user input
+    Quit = 6;       // closing
+}
