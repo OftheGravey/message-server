@@ -5,91 +5,114 @@ import protocols.{UserMessage}
 // https://scalameta.org/munit/docs/getting-started.html
 class SystemTests extends munit.FunSuite {
 
-    DatabaseManager.setupDb("data/test.db")
+  DatabaseManager.setupDb("data/test.db")
 
-    override def afterAll(): Unit = {
-        val connection: Connection = DatabaseManager.createConnection()
-        val statement = connection.createStatement()
+  override def afterAll(): Unit = {
+    val connection: Connection = DatabaseManager.createConnection()
+    val statement = connection.createStatement()
 
-        statement.executeUpdate("DROP TABLE users;")
-        statement.executeUpdate("DROP TABLE messages;")
+    statement.executeUpdate("DROP TABLE users;")
+    statement.executeUpdate("DROP TABLE messages;")
 
-        connection.close()
-    }
+    connection.close()
+  }
 
-    test("basic user creation") {
-        val NORMAL_USER_USERNAME = "test-a"
-        val NORMAL_USER_PASSWORD = "password"
-        val NORMAL_USER_WRONG_PASSWORD = "password_a"
-        val UNKNOWN_USER_USERNAME = "test-b"
-        val UNKNOWN_USER_PASSWORD = "password_b"
+  test("basic user creation") {
+    val NORMAL_USER_USERNAME = "test-a"
+    val NORMAL_USER_PASSWORD = "password"
+    val NORMAL_USER_WRONG_PASSWORD = "password_a"
+    val UNKNOWN_USER_USERNAME = "test-b"
+    val UNKNOWN_USER_PASSWORD = "password_b"
 
-        var result: AccessError = NoAccessError
+    var result: AccessError = NoAccessError
 
-        result = AccessManager.createUser(NORMAL_USER_USERNAME, NORMAL_USER_PASSWORD)      
-        assert(result == NoAccessError)
+    result =
+      AccessManager.createUser(NORMAL_USER_USERNAME, NORMAL_USER_PASSWORD)
+    assert(result == NoAccessError)
 
-        result = AccessManager.autheticateUser(NORMAL_USER_USERNAME, NORMAL_USER_PASSWORD)      
-        assert(result == NoAccessError)
+    result =
+      AccessManager.autheticateUser(NORMAL_USER_USERNAME, NORMAL_USER_PASSWORD)
+    assert(result == NoAccessError)
 
-        result = AccessManager.autheticateUser(NORMAL_USER_USERNAME, NORMAL_USER_WRONG_PASSWORD)      
-        assert(result == InvalidPassword)
+    result = AccessManager.autheticateUser(
+      NORMAL_USER_USERNAME,
+      NORMAL_USER_WRONG_PASSWORD
+    )
+    assert(result == InvalidPassword)
 
-        result = AccessManager.autheticateUser(UNKNOWN_USER_USERNAME, UNKNOWN_USER_PASSWORD)      
-        assert(result == UserUnknown)    
+    result = AccessManager.autheticateUser(
+      UNKNOWN_USER_USERNAME,
+      UNKNOWN_USER_PASSWORD
+    )
+    assert(result == UserUnknown)
 
-        result = AccessManager.createUser(NORMAL_USER_USERNAME,NORMAL_USER_PASSWORD)      
-        assert(result == UserAlreadyExists)
-    }
+    result =
+      AccessManager.createUser(NORMAL_USER_USERNAME, NORMAL_USER_PASSWORD)
+    assert(result == UserAlreadyExists)
+  }
 
-    test("basic message lifecycle") {
-        val SENDING_USER = "testa"
-        val RECIEVING_USER = "testb"
-        val NO_MESSAGES_USER = "testc"
-        val messageA = UserMessage.newBuilder()
-            .setSender(SENDING_USER)
-            .setRecipient(RECIEVING_USER)
-            .build()
-        
-        val insertResult = MessageManager.insertMessage(messageA)
-        assert(insertResult == NoMessageError)
+  test("basic message lifecycle") {
+    val SENDING_USER = "testa"
+    val RECIEVING_USER = "testb"
+    val NO_MESSAGES_USER = "testc"
+    val messageA = UserMessage
+      .newBuilder()
+      .setSender(SENDING_USER)
+      .setRecipient(RECIEVING_USER)
+      .build()
 
-        val messageList = MessageManager.readMessages(RECIEVING_USER, false)
-        assert(messageList.contains(messageA))
-        assert(messageList(0).getRecipient == RECIEVING_USER)
-        assert(messageList(0).getSender == SENDING_USER)
+    val insertResult = MessageManager.insertMessage(messageA)
+    assert(insertResult == NoMessageError)
 
-        val messageListSender = MessageManager.readMessages(SENDING_USER, true)
-        assert(messageListSender.contains(messageA))
+    val messageList = MessageManager.readMessages(RECIEVING_USER, false)
+    assert(messageList.contains(messageA))
+    assert(messageList(0).getRecipient == RECIEVING_USER)
+    assert(messageList(0).getSender == SENDING_USER)
 
-        MessageManager.insertMessage(messageA)
-        MessageManager.insertMessage(messageA)
+    val messageListSender = MessageManager.readMessages(SENDING_USER, true)
+    assert(messageListSender.contains(messageA))
 
-        val messageManyList: Array[UserMessage] = MessageManager.readMessages(RECIEVING_USER, false)
-        assert(messageManyList.length == 3)
+    MessageManager.insertMessage(messageA)
+    MessageManager.insertMessage(messageA)
 
-        val noMessagesList = MessageManager.readMessages(NO_MESSAGES_USER, false)
-        assert(noMessagesList.length == 0)
-    }
-    
-    test("bad data tests") {
-        val BAD_PASSWORD_USER_USERNAME = "test-a"
-        val BAD_PASSWORD_USER_PASSWORD = ""
-        val BAD_USERNAME_USER_USERNAME = ""
-        val BAD_USERNAME_USER_PASSWORD = "password_b"
+    val messageManyList: Array[UserMessage] =
+      MessageManager.readMessages(RECIEVING_USER, false)
+    assert(messageManyList.length == 3)
 
-        var result: AccessError = NoAccessError
+    val noMessagesList = MessageManager.readMessages(NO_MESSAGES_USER, false)
+    assert(noMessagesList.length == 0)
+  }
 
-        result = AccessManager.createUser(BAD_PASSWORD_USER_USERNAME, BAD_PASSWORD_USER_PASSWORD)      
-        assert(result == InvalidPassword)
+  test("bad data tests") {
+    val BAD_PASSWORD_USER_USERNAME = "test-a"
+    val BAD_PASSWORD_USER_PASSWORD = ""
+    val BAD_USERNAME_USER_USERNAME = ""
+    val BAD_USERNAME_USER_PASSWORD = "password_b"
 
-        result = AccessManager.autheticateUser(BAD_PASSWORD_USER_USERNAME, BAD_PASSWORD_USER_PASSWORD)      
-        assert(result == InvalidPassword)
+    var result: AccessError = NoAccessError
 
-        result = AccessManager.createUser(BAD_USERNAME_USER_USERNAME, BAD_USERNAME_USER_PASSWORD)      
-        assert(result == InvalidUsername)
+    result = AccessManager.createUser(
+      BAD_PASSWORD_USER_USERNAME,
+      BAD_PASSWORD_USER_PASSWORD
+    )
+    assert(result == InvalidPassword)
 
-        result = AccessManager.autheticateUser(BAD_USERNAME_USER_USERNAME, BAD_USERNAME_USER_PASSWORD)      
-        assert(result == InvalidUsername)
-    }
+    result = AccessManager.autheticateUser(
+      BAD_PASSWORD_USER_USERNAME,
+      BAD_PASSWORD_USER_PASSWORD
+    )
+    assert(result == InvalidPassword)
+
+    result = AccessManager.createUser(
+      BAD_USERNAME_USER_USERNAME,
+      BAD_USERNAME_USER_PASSWORD
+    )
+    assert(result == InvalidUsername)
+
+    result = AccessManager.autheticateUser(
+      BAD_USERNAME_USER_USERNAME,
+      BAD_USERNAME_USER_PASSWORD
+    )
+    assert(result == InvalidUsername)
+  }
 }

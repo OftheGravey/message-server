@@ -1,19 +1,29 @@
 import os
 import sys
+
 sys.path.append(os.getcwd())
-sys.path.append(os.getcwd() + '/src')
-from src.client import user_setup, receive_user_messages, sendAuthDetails, writeStateChange, acceptStateChange, send_user_message
+sys.path.append(os.getcwd() + "/src")
+from src.client import (
+    user_setup,
+    receive_user_messages,
+    sendAuthDetails,
+    writeStateChange,
+    acceptStateChange,
+    send_user_message,
+)
 import pytest
 import socket
 from main.protobuf import message_pb2
 
-HOST = 'localhost'
+HOST = "localhost"
 PORT = 6123
+
 
 def setup_socket():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((HOST, PORT))
     return s
+
 
 def login_or_signin(username, password):
     s = setup_socket()
@@ -22,10 +32,7 @@ def login_or_signin(username, password):
 
         writeStateChange(s, message_pb2.ClientState.Signup)
         response, username = sendAuthDetails(
-            s, 
-            message_pb2.ClientState.Signup, 
-            username, 
-            password
+            s, message_pb2.ClientState.Signup, username, password
         )
         assert response.response == message_pb2.AuthReturn.AuthSuccess
     except:
@@ -35,13 +42,11 @@ def login_or_signin(username, password):
 
         writeStateChange(s, message_pb2.ClientState.Login)
         response, username = sendAuthDetails(
-            s, 
-            message_pb2.ClientState.Login, 
-            username, 
-            password
+            s, message_pb2.ClientState.Login, username, password
         )
         assert response.response == message_pb2.AuthReturn.AuthSuccess
     return s
+
 
 def test_create_auth():
     USER_A_USERNAME = "test-a"
@@ -53,10 +58,7 @@ def test_create_auth():
 
     writeStateChange(s, message_pb2.ClientState.Signup)
     response, username = sendAuthDetails(
-        s, 
-        message_pb2.ClientState.Signup, 
-        USER_A_USERNAME, 
-        USER_A_PASSWORD
+        s, message_pb2.ClientState.Signup, USER_A_USERNAME, USER_A_PASSWORD
     )
     s.close()
 
@@ -66,14 +68,12 @@ def test_create_auth():
 
     writeStateChange(s, message_pb2.ClientState.Login)
     response, username = sendAuthDetails(
-        s, 
-        message_pb2.ClientState.Login, 
-        USER_A_USERNAME, 
-        USER_A_PASSWORD
+        s, message_pb2.ClientState.Login, USER_A_USERNAME, USER_A_PASSWORD
     )
     assert response.response == message_pb2.AuthReturn.AuthSuccess
 
     s.close()
+
 
 def test_message_creation():
     USER_B_USERNAME = "test-b"
@@ -88,14 +88,16 @@ def test_message_creation():
 
     USER_B_MSGS_SENT_TO_C = 3
     for i in range(USER_B_MSGS_SENT_TO_C):
-        response = send_user_message(s, USER_B_USERNAME, "TestA", USER_C_USERNAME, "TestA")
+        response = send_user_message(
+            s, USER_B_USERNAME, "TestA", USER_C_USERNAME, "TestA"
+        )
         assert response.status == message_pb2.UserMessageResponseStatus.MsgSuccess
 
     response = receive_user_messages(s, USER_B_USERNAME, sender=True)
     assert len(response.list) == USER_B_MSGS_SENT_TO_C
     response = receive_user_messages(s, USER_B_USERNAME, sender=False)
     assert len(response.list) == 0
-    
+
     # Trying to send as different user
     response = send_user_message(s, USER_C_USERNAME, "TestA", USER_B_USERNAME, "TestA")
     assert response.status == message_pb2.UserMessageResponseStatus.MsgFailure

@@ -2,17 +2,17 @@ import java.io._
 import java.net._
 
 object Main extends App {
-    val serverSocket = new ServerSocket(6123)
-    
-    DatabaseManager.setupDb("data/sample.db")
+  val serverSocket = new ServerSocket(6123)
 
-    while (true) {
-        val clientSocket = serverSocket.accept()
-        println("Client connected!")
+  DatabaseManager.setupDb("data/sample.db")
 
-        val handler = new Handler(clientSocket)
-        handler.start()
-    }
+  while (true) {
+    val clientSocket = serverSocket.accept()
+    println("Client connected!")
 
-    serverSocket.close()
+    val handler = new Handler(clientSocket)
+    handler.start()
+  }
+
+  serverSocket.close()
 }

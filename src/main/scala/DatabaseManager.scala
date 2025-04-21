@@ -15,38 +15,38 @@ import org.sqlite.SQLiteException
 import scala.util.{Try, Success, Failure}
 
 object DatabaseManager {
-    private var dbUrl = "jdbc:sqlite:"
+  private var dbUrl = "jdbc:sqlite:"
 
-    def createConnection(): Connection = {
-        var maybeConnection = Option(DriverManager.getConnection(dbUrl))
+  def createConnection(): Connection = {
+    var maybeConnection = Option(DriverManager.getConnection(dbUrl))
 
-        maybeConnection match {
-            case Some(conn) => 
-                println("Connected to DB")
-                return conn
-            case None => 
-                println("Error connecting to DB")
-                throw new Error()
-        }
+    maybeConnection match {
+      case Some(conn) =>
+        println("Connected to DB")
+        return conn
+      case None =>
+        println("Error connecting to DB")
+        throw new Error()
     }
+  }
 
-    def setupDb(dbPath: String) {
-        dbUrl = s"$dbUrl$dbPath"
-        val connection: Connection = DatabaseManager.createConnection()
-        var statement = connection.createStatement()
+  def setupDb(dbPath: String) {
+    dbUrl = s"$dbUrl$dbPath"
+    val connection: Connection = DatabaseManager.createConnection()
+    var statement = connection.createStatement()
 
-        statement.executeUpdate(
-            """
+    statement.executeUpdate(
+      """
             create table if not exists users (
                 username string PRIMARY KEY,
                 password_hash blob,
                 salt blob
             )
             """
-        )
-        statement.executeUpdate("PRAGMA foreign_keys = ON;")
-        statement.executeUpdate(
-            """
+    )
+    statement.executeUpdate("PRAGMA foreign_keys = ON;")
+    statement.executeUpdate(
+      """
             create table if not exists messages (
                 sender string,
                 recipient string,
@@ -56,8 +56,8 @@ object DatabaseManager {
                 FOREIGN KEY (recipient) REFERENCES users(username)
             )
             """
-        )
+    )
 
-        connection.close()
-    }
+    connection.close()
+  }
 }

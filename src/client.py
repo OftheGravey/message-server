@@ -2,8 +2,9 @@ import socket
 from main.protobuf import message_pb2
 from google.protobuf.internal import decoder
 
-HOST = 'localhost'
+HOST = "localhost"
 PORT = 6123
+
 
 def send_message(sock, message):
     # Write length prefix (varint style - like writeDelimitedTo in Java)
@@ -19,6 +20,7 @@ def send_message(sock, message):
             break
     # Then write the actual message
     sock.send(message_bytes)
+
 
 def receive_message(s, message_class):
     # Step 1: Read varint-encoded message length
@@ -47,6 +49,7 @@ def receive_message(s, message_class):
     msg.ParseFromString(msg_data)
     return msg
 
+
 def op_send_message(s, name):
     message = message_pb2.UserMessage()
 
@@ -58,6 +61,7 @@ def op_send_message(s, name):
 
     send_message(s, message)
 
+
 def send_user_message(s, username, title, recipient, content):
     message = message_pb2.UserMessage()
 
@@ -66,7 +70,7 @@ def send_user_message(s, username, title, recipient, content):
     message.title = title
     message.recipient = recipient
     message.content = content
-    
+
     writeStateChange(s, message_pb2.ClientState.Messaging)
     send_message(s, message)
 
@@ -75,6 +79,7 @@ def send_user_message(s, username, title, recipient, content):
     writeStateChange(s, message_pb2.ClientState.UserLoop)
 
     return response
+
 
 def receive_user_messages(s, username, sender):
     messageRequest = message_pb2.UserMessageRequest()
@@ -89,11 +94,12 @@ def receive_user_messages(s, username, sender):
 
     return list
 
+
 def user_loop(s, name):
-    while 1: 
+    while 1:
         command = input("Enter command: ")
 
-        if command == 'message':
+        if command == "message":
             title = input("Enter title:")
             recipient = input("Enter recipient:")
             content = input("Enter content:")
@@ -102,30 +108,34 @@ def user_loop(s, name):
 
         if command == "read":
             sender = input("Inbox or Outbox: ")
-            if (sender != 'Inbox' and sender != 'Outbox'):
+            if sender != "Inbox" and sender != "Outbox":
                 print("input error")
 
-            receive_user_messages(s, name, sender == 'Outbox')
+            receive_user_messages(s, name, sender == "Outbox")
+
 
 def acceptStateChange(s):
     new_state = receive_message(s, message_pb2.StateChange)
     return new_state.state
+
 
 def writeStateChange(s, state):
     stateChange = message_pb2.StateChange()
     stateChange.state = state
     send_message(s, stateChange)
 
+
 def sendAuthDetails(s, state, username, password):
     authMsg = message_pb2.AuthMessage()
     authMsg.username = username
     authMsg.password = password
-    authMsg.state = state 
+    authMsg.state = state
 
     send_message(s, authMsg)
     response = receive_message(s, message_pb2.AuthResponse)
 
     return response, username
+
 
 def authLoop(s, state):
     while 1:
@@ -141,38 +151,40 @@ def authLoop(s, state):
             return None
         print("Auth Failed, Retry")
 
+
 def authenticate(s):
     state: message_pb2.ClientState
     while 1:
         command = input("Login or Signup: ")
-        if not (command == 'Login' or command == 'Signup'):
+        if not (command == "Login" or command == "Signup"):
             print("Invalid Input.")
             continue
 
-        if command == 'Login':
+        if command == "Login":
             state = message_pb2.ClientState.Login
-        elif command == 'Signup':
+        elif command == "Signup":
             state = message_pb2.ClientState.Signup
 
         writeStateChange(s, state)
         username = authLoop(s, state)
         return username
 
+
 def user_setup(s):
     data = s.recv(1024)
     print(f"Received from server: {data.decode()}")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT))
 
         user_setup(s)
         username = authenticate(s)
         if username is None:
-            exit() 
+            exit()
 
         state = acceptStateChange(s)
         assert state == message_pb2.ClientState.UserLoop
 
         user_loop(s, username)
-
