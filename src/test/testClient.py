@@ -11,7 +11,6 @@ from src.client import (
     acceptStateChange,
     send_user_message,
 )
-import pytest
 import socket
 from main.protobuf import message_pb2
 
@@ -35,7 +34,7 @@ def login_or_signin(username, password):
             s, message_pb2.ClientState.Signup, username, password
         )
         assert response.response == message_pb2.AuthReturn.AuthSuccess
-    except:
+    except Exception:
         s.close()
         s = setup_socket()
         user_setup(s)
@@ -87,7 +86,7 @@ def test_message_creation():
     assert state == message_pb2.ClientState.UserLoop
 
     USER_B_MSGS_SENT_TO_C = 3
-    for i in range(USER_B_MSGS_SENT_TO_C):
+    for _ in range(USER_B_MSGS_SENT_TO_C):
         response = send_user_message(
             s, USER_B_USERNAME, "TestA", USER_C_USERNAME, "TestA"
         )

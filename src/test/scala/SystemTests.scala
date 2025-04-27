@@ -5,7 +5,8 @@ import protocols.{UserMessage}
 // https://scalameta.org/munit/docs/getting-started.html
 class SystemTests extends munit.FunSuite {
 
-  DatabaseManager.setupDb("data/test.db")
+  val databaseName = Main.buildDatabaseName("sys-test")
+  DatabaseManager.setupDb(s"data/$databaseName.db")
 
   override def afterAll(): Unit = {
     val connection: Connection = DatabaseManager.createConnection()

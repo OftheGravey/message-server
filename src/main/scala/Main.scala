@@ -2,9 +2,20 @@ import java.io._
 import java.net._
 
 object Main extends App {
-  val serverSocket = new ServerSocket(6123)
+  def buildDatabaseName(tenant: String): String = {
+    if (tenant == "prod") {
+      return "main-db"
+    }
+    return s"$tenant-db"
+  }
 
-  DatabaseManager.setupDb("data/sample.db")
+  val serverSocket = new ServerSocket(6123)
+  val tenantOption = sys.env.get("TENANT")
+  if (tenantOption.isEmpty)
+    throw new Exception("Undefined TENANT env var")
+  val databaseName = buildDatabaseName(tenantOption.get)
+
+  DatabaseManager.setupDb(s"data/$databaseName.db")
 
   while (true) {
     val clientSocket = serverSocket.accept()

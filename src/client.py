@@ -111,7 +111,13 @@ def user_loop(s, name):
             if sender != "Inbox" and sender != "Outbox":
                 print("input error")
 
-            receive_user_messages(s, name, sender == "Outbox")
+            messages = receive_user_messages(s, name, sender == "Outbox")
+            print(messages)
+
+        if command == 'quit':
+            writeStateChange(s, message_pb2.ClientState.Quit)
+            s.close()
+            exit()
 
 
 def acceptStateChange(s):

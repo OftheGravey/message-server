@@ -1,0 +1,9 @@
+[project]
+name = "message-server"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "protobuf==3.19.0",
+]
