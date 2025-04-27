@@ -39,6 +39,7 @@ raw/
 /src/main/java
 /src/protobuf/message_pb2.py
 .pytest_cache
+.scala-build
 
 # SQLITE database dir
 data/*
