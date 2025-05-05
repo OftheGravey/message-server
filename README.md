@@ -13,7 +13,7 @@ Configured to run over localhost. \
 
 ### Requirements for Server and Client
 Compile protobuf protocols via
-```bash 
+```bash
 compile-proto.sh
 ```
 
@@ -22,7 +22,7 @@ Requires the JVM and Scala to run. Installation guides [here](<https://www.scala
 Requires `server.env` variables to be set. The tenant variable can be changed to create seperate database
 
 The server can be started via
-```bash 
+```bash
 sbt run
 ```
 
@@ -30,12 +30,12 @@ sbt run
 Requires Python and UV, or alternatively any package manager that can read `pyproject.toml`. UV can be found [here](https://docs.astral.sh/uv/getting-started/installation/)
 
 The client can be run via
-```bash 
+```bash
 uv sync # setups packages
 uv run src/client.py
 ```
 Or alternatively
-```bash 
+```bash
 python3 src/client.py
 ```
 
@@ -56,4 +56,3 @@ NOTE: For the mock client it is recommended to change the server tenant from pro
 * Improved client UX. Currently the user experience on the client side is poor, exact word matching for inputs.
 * Deleting messages. Messages can not be deleted from either the user-flow or the server side without ad-hoc queries against the database.
 * Remove static message limit. Currently it is only possible for the client to read 3 messages from the server due to protocol limitations.
-

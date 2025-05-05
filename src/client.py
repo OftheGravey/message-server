@@ -114,7 +114,7 @@ def user_loop(s, name):
             messages = receive_user_messages(s, name, sender == "Outbox")
             print(messages)
 
-        if command == 'quit':
+        if command == "quit":
             writeStateChange(s, message_pb2.ClientState.Quit)
             s.close()
             exit()

@@ -36,8 +36,8 @@ raw/
 
 # compiled files
 *__pycache__*
-/src/main/java
-/src/protobuf/message_pb2.py
+src/main/java
+src/main/protobuf/message_pb2.py
 .pytest_cache
 .scala-build
 
