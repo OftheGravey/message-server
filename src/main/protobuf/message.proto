@@ -5,7 +5,7 @@ option java_multiple_files = true;
 
 // User Messaging Structs
 //
-/* 
+/*
     Represents a message sent from the client to be
     inserted into the database and sent to another user
 */
@@ -16,14 +16,14 @@ message UserMessage {
     string sender = 4;
     string content = 5;
 }
-/* 
+/*
     Represents a list of messages
     sent to the user that they've requested
 */
 message UserMessageList {
     repeated UserMessage list = 1;
 }
-/* 
+/*
     Represents a request for messages
     sent to the User
 */
@@ -31,7 +31,7 @@ message UserMessageRequest {
     string username = 1;
     bool sender = 2;  // 0: Recieved messages, 1: Sent Messages
 }
-/* 
+/*
     Represents response status types from the server
     about the status of a sent UserMessage
 */
@@ -40,7 +40,7 @@ enum UserMessageResponseStatus {
     MsgFailure = 1;
     MsgRecipientUnknown = 2;
 }
-/* 
+/*
     Represents a response from the server
     about the status of a sent UserMessage
 */
@@ -50,7 +50,7 @@ message UserMessageResponse {
 
 
 // Auth Message Structs
-/* 
+/*
     Represents a request to login or sign up
 */
 message AuthMessage {
@@ -58,14 +58,14 @@ message AuthMessage {
     string password = 2;
     ClientState state = 3;
 }
-/* 
+/*
     Represents a response to login or sign up
 */
 message AuthResponse {
-    AuthReturn response = 1;  
+    AuthReturn response = 1;
     string token = 2; // Placeholder
 }
-/* 
+/*
     Represents reponse status' to the client
     regarding Auth requests
 */
@@ -75,7 +75,7 @@ enum AuthReturn {
     AuthFailureRetry = 2;
 }
 
-/* 
+/*
     Represents a bi-directional message
     for client state changes
 */
@@ -83,8 +83,8 @@ message StateChange {
     ClientState state = 1;
 }
 
-/* 
-    Represents the current state the 
+/*
+    Represents the current state the
     client is in
 */
 enum ClientState {

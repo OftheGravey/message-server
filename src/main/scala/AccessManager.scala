@@ -70,7 +70,7 @@ object AccessManager {
 
     var stmt = connection.prepareStatement(
       """
-            INSERT INTO users 
+            INSERT INTO users
                 (username, password_hash, salt)
             VALUES (?, ?, ?);
                 """
@@ -109,7 +109,7 @@ object AccessManager {
 
     val result = statement.executeQuery(
       s"""
-            SELECT username, password_hash, salt 
+            SELECT username, password_hash, salt
             FROM users
             WHERE username = '$username';"""
     )
